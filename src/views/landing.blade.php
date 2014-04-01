@@ -1,3 +1,7 @@
+
+<link rel="stylesheet" type="text/css" href="{{ URL::asset('packages/Redpanda/Slowloris/styles.css') }}" />
+
+
 <pre>
 Here you are logged in...
 
