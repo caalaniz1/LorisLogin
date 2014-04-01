@@ -1,0 +1,29 @@
+{
+    "name": "red-panda/loris-login",
+    "description": "",
+    "authors": [
+        {
+            "name": "Carlos A. Alaniz",
+            "email": "carlos@redpandadev.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.1.*",
+	"hybridauth/hybridauth": "dev-master",
+	"laravelbook/ardent": "dev-master"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations",
+            "src/controllers",
+            "src/models",
+	    "src/Facades",
+	    "src/views"
+        ],
+        "psr-0": {
+            "RedPanda\\LorisLogin\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
