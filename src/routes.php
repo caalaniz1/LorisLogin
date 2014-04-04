@@ -12,11 +12,11 @@
  */
 
 Route::get('/', array('as' => 'landing', function() {
-    return View::make('LorisLogin::home');
+return View::make('LorisLogin::home');
 }));
 
 Route::get('login', array('as' => 'login', function() {
-    return View::make('LorisLogin::login');
+return View::make('LorisLogin::login');
 }));
 
 
@@ -24,97 +24,64 @@ Route::get('login', array('as' => 'login', function() {
 
 
 Route::get('signup', array('as' => 'signup', function() {
-    echo "signup";
+return View::make('LorisLogin::signup');
 }));
 
 
 Route::group(array('before' => 'auth'), function() {
     Route::get('logout', array('as' => 'logout', function() {
-        var_dump(LorisLogin::loginSocial());
-    }));
+    Auth::logout();
+    return Redirect::route('landing');
+}));
     Route::group(array('prefix' => 'admin/users'), function() {
         Route::get('/', array('as' => 'admin-users-landing', function() {
-            echo "admin users landing";
-        }));
+        echo "admin users landing";
+        foreach (Auth::user()->socialProfiles()->getResults() as $a) {
+            var_dump($a);
+        }
+    }));
     });
 });
+route::get('testing', function() {
+    $username = "carlos.glvn";
+    $num = 00;
+    $dup = NULL;
+    var_dump(User::where('username', '=', $username)->get()->isEmpty());
 
-Route::get('slogin',array('as'=>'socialLogin', 'uses'=>'LorisLogin@loginWithSocial'));
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-Route::get('logout',array('as' => 'logout', function() {
-Auth::logout();
-return Redirect::route('landing');
-}));
-Route::get('/',array('as' => 'landing', function() {
-    return View::make('LorisLogin::home');
-}));
-
-Route::get('login', function() {
-
-    return View::make('LorisLogin::login');
-});
-
-Route::group(array('prefix' => 'lorislogin'), function() {
-
-    Route::group(array('before' => 'auth'), function() {
-        Route::get('private', function() {
-            return View::make("LorisLogin::private");
-            //Auth::logout();
-        });
-    });
-});
-
-Route::get('test', function() {
-
-    return View::make("LorisLogin::blueprint");
-});
-
-Route::get('test2', 'LorisLogin@doSocialLogin');
-
-
-
-
-Route::get('social/{action?}', array("as" => "hybridauth", function($action = "") {
-// check URL segment
-if ($action == "auth") {
-    // process authentication
-    try {
-        Hybrid_Endpoint::process();
-    } catch (Exception $e) {
-        // redirect back to http://URL/social/
-        return Redirect::route('hybridauth');
+    //is username cannot be saved the username is taked by other user
+    while (!User::where('username', '=', $username)->get()->isEmpty()) {
+        //TRy to take the last duplicate of the number
+        $dup = User::where('username', 'LIKE', $username . '-sL__')
+                ->orderBy('username', 'desc')
+                ->first();
+        //if theres a hit the the number and increase it
+        if ($dup != NULL) {
+            $num = (int) substr($dup->username, -2);
+            $num++;
+        }
+        //try a new username
+        $username = $username . '-sL' . sprintf('%02d', $num);
     }
-    return;
-}
-try {
-    // create a HybridAuth object
-    $socialAuth = new Hybrid_Auth(app_path() . '/config/hybridauth.php');
-    // authenticate with Google
-    $provider = $socialAuth->authenticate("facebook");
-    // fetch user profile
-    $userProfile = $provider->getUserProfile();
-} catch (Exception $e) {
-    // exception codes can be found on HybBridAuth's web site
-    return $e->getMessage();
-}
-// access user profile data
-echo "Connected with: <b>{$provider->id}</b><br />";
-echo "As: <b>{$userProfile->displayName}</b><br />";
-echo "<pre>" . print_r($userProfile, true) . "</pre><br />";
+    $user = new User;
+    $user->username = $username;
+    $user->save();
 
-// logout
-$provider->logout();
-}));
-*/
+    echo '<br>';
+
+
+
+
+
+
+
+
+
+    for ($i = 0; $i < 1000; $i ++) {
+        echo sprintf('%03d', $i) . '<br>';
+    }
+});
+Route::get('sociallogin', array('as' => 'socialLogin', 'uses' => 'LorisLogin@loginWithSocial'));
+Route::post('locallogin', array('as' => 'localLogin', 'uses' => 'LorisLogin@loginWithLocal'));
+
+Route::post('localsignup', array('as' => 'localSignup', 'uses' => 'LorisLogin@signupWithLocal'));
+Route::get('socialsignup', array('as' => 'socialSignup', 'uses' => 'LorisLogin@signupWithLocal'));

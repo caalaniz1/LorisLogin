@@ -1,12 +1,11 @@
 @extends("LorisLogin::blueprint")
 
 @section('content')
-
 <div class="col-md-4">
-    <h1>Login</h1>
-    <!--Local Login Form-->
+
+    <h1>Create a local user</h1>
     {{Form::open(array(
-                'route'=>'localLogin', 
+                'route'=>'localSignup', 
                 'method' => 'POST',
                 'role' => 'form',
                 ))}}
@@ -26,18 +25,19 @@
         'class'=>'form-control',
         'placeholder'=>'Password'
         ))}}
-
     </div>
     <div class ="form-group">
-        {{Form::submit('Login', array('class'=> 'btn btn-default'))}}
+        {{Form::label('password', 'Confirm Password');}}
+        {{Form::password('confirm-password', 
+        array(
+        'class'=>'form-control',
+        'placeholder'=>'Confirm password'
+        ))}}
     </div>
     {{Form::close()}}
-
-
-    <!--Social Login Form-->
-
+    <h3>OR!..Create and link with:</h3>
     {{Form::open(array(
-                'route'=>'socialLogin', 
+                'route'=>'socialSignup', 
                 'method' => 'GET',
                 'role' => 'form',
                 ))}}
@@ -49,19 +49,16 @@
 
 
 </div>
+<div class="col-md-4"></div>
 <div class="col-md-4">
-</div>
-<div class="col-md-4">
-    <div class="alert alert-info">
-        <span class="glyphicon glyphicon-star" style="color: #e38d13;"></span>
-        You can login either with a local account or using your social network 
-        credentials
-    </div>
     @if(Session::has('message'))
     <div class="alert alert-warning">
         <span class="glyphicon glyphicon-warning-sign" style="color: #EE3322"></span>
         {{Session::get('message')}}
     </div>
     @endif
+
 </div>
+
+
 @stop
