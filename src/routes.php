@@ -11,10 +11,97 @@
   |
  */
 
+Route::get('/', array('as' => 'landing', function() {
+return View::make('LorisLogin::home');
+}));
+
+Route::get('login', array('as' => 'login', function() {
+return View::make('LorisLogin::login');
+}));
+
+
+Route::get('logout', array('as' => 'logout', function() {
+var_dump(LorisLogin::loginSocial());
+}));
+
+
+Route::get('signup', array('as' => 'signup', function() {
+echo "signup";
+}));
+
+
+Route::group(array('before' => 'auth'), function() {
+
+    Route::group(array('prefix' => 'admin/users'), function() {
+        Route::get('/', array('as' => 'admin-users-landing', function() {
+        echo "admin users landing";
+    }));
+    });
+});
+
+
+Route::get('slogin/{obj}', 'LorisLogin@loginWithSocial');
+
+Route::get('social/{action?}', array("as" => "hybridauth", function($action = "") {
+$provider = Input::get('network');
+// check URL segment
+if ($action == "auth") {
+    // process authentication
+    try {
+        Hybrid_Endpoint::process();
+    } catch (Exception $e) {
+        // redirect back to http://URL/social/
+        return Redirect::route('hybridauth');
+    }
+    return;
+}
+try {
+    // create a HybridAuth object
+    $socialAuth = new Hybrid_Auth(app_path() . '/config/hybridauth.php');
+    // authenticate with Google
+
+    $provider = $socialAuth->authenticate($provider);
+
+    // fetch user profile
+    $userProfile = $provider->getUserProfile();
+} catch (Exception $e) {
+    // exception codes can be found on HybBridAuth's web site
+    return $e->getMessage();
+}
+// access user profile data
+echo "Connected with: <b>{$provider->id}</b><br />";
+echo "As: <b>{$userProfile->displayName}</b><br />";
+echo "<pre>" . print_r($userProfile, true) . "</pre><br />";
+
+// logout
+
+
+}));
+
+
+
+
+
+
+
+
+
+
+/*
+
+Route::get('logout',array('as' => 'logout', function() {
+Auth::logout();
+return Redirect::route('landing');
+}));
+Route::get('/',array('as' => 'landing', function() {
+    return View::make('LorisLogin::home');
+}));
+
 Route::get('login', function() {
 
     return View::make('LorisLogin::login');
 });
+
 Route::group(array('prefix' => 'lorislogin'), function() {
 
     Route::group(array('before' => 'auth'), function() {
@@ -25,19 +112,9 @@ Route::group(array('prefix' => 'lorislogin'), function() {
     });
 });
 
-
-
-
-
-
-
-
-
-
-
 Route::get('test', function() {
 
-    echo LorisUser::greetings();
+    return View::make("LorisLogin::blueprint");
 });
 
 Route::get('test2', 'LorisLogin@doSocialLogin');
@@ -76,3 +153,4 @@ echo "<pre>" . print_r($userProfile, true) . "</pre><br />";
 // logout
 $provider->logout();
 }));
+*/
