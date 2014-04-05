@@ -15,8 +15,8 @@ class CreateUserLocalProfileTable extends Migration {
 
             $table->increments('id');
             
-            $table->string('first_name','20');
-            $table->string('last_name','20');
+            $table->string('first_name','20')->nullable();
+            $table->string('last_name','20')->nullable();
             $table->string('description','250')->nullable();
             $table->string('gender','20')->nullable();
             $table->string('photo_url','256')->nullable();

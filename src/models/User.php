@@ -60,7 +60,7 @@ class User extends Ardent implements UserInterface, RemindableInterface {
     }
 
     public function localProfile() {
-        return $this->hasOne('LocalProfile', 'loalProfileId');
+        return $this->hasOne('LocalProfile', 'user_id');
     }
 
 }

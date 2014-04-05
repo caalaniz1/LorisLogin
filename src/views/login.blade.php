@@ -57,11 +57,5 @@
         You can login either with a local account or using your social network 
         credentials
     </div>
-    @if(Session::has('message'))
-    <div class="alert alert-warning">
-        <span class="glyphicon glyphicon-warning-sign" style="color: #EE3322"></span>
-        {{Session::get('message')}}
-    </div>
-    @endif
 </div>
 @stop
