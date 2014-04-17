@@ -1,18 +1,16 @@
 <?php
 
-
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
-use LaravelBook\Ardent\Ardent;
 
-class User extends Ardent implements UserInterface, RemindableInterface {
+
+class User extends Eloquent implements UserInterface, RemindableInterface {
 
     protected $guarded = array();
 
     /**
      * Set of Validation Rules   
      */
-
 
     /**
      * The database table used by the model.
@@ -61,6 +59,10 @@ class User extends Ardent implements UserInterface, RemindableInterface {
 
     public function localProfile() {
         return $this->hasOne('LocalProfile', 'user_id');
+    }
+
+    public function hybridSessions() {
+          return $this->hasOne('HybridSessions', 'user_id');
     }
 
 }

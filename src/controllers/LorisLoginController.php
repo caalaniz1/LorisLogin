@@ -43,6 +43,16 @@ class LorisLogin extends BaseController {
         return $username;
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * Tries to connect to a social network provider is success return
      * the profile else trow expection
@@ -77,12 +87,17 @@ class LorisLogin extends BaseController {
             // authenticate with Google
             $provider = $socialAuth->authenticate($network);
             // fetch user profile
+            if($provider){
+                die(var_dump($socialAuth->getConnectedProviders()));
+            }else{
+                echo "ouch!";
+                die(var_dump($provider));
+            }
             $userProfile = $provider->getUserProfile();
         } catch (Exception $e) {
             // exception codes can be found on HybBridAuth's web site
             return $e->getMessage();
-        }
-
+        }       
         $provider->logout();
         return $userProfile;
     }

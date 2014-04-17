@@ -43,7 +43,7 @@ class CreateUserLocalProfileTable extends Migration {
      * @return void
      */
     public function down() {
-        //
+        Schema::dropIfExists('local_profiles');
     }
 
 }

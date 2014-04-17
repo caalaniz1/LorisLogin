@@ -1,9 +1,6 @@
 <?php
 
-
-use LaravelBook\Ardent\Ardent;
-
-class SocialProfile extends Ardent {
+class SocialProfile  extends Eloquent{
 
     /**
      * Set of Validation Rules   

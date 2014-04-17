@@ -1,8 +1,6 @@
 <?php
 
-use LaravelBook\Ardent\Ardent;
-
-class LocalProfile extends Ardent {
+class LocalProfile extends Eloquent  {
     //all elements are mass fillable
     protected $guarded = array();
 
