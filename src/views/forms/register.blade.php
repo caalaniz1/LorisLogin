@@ -9,9 +9,13 @@
 $form_route = "test";
 $social_action_route = "test";
 ?>
-<h2>Register</h2>
+
+
 {{Form::open(array
     ('route' => $form_route, 'method' => 'POST', 'role'=>'form'))}}
+
+<!--Form Name-->
+<div class="form-group"> <h1>Register</h2> </div>
 
 <div class="form-group">
     {{Form::label('username', 'Username')}}
