@@ -19,7 +19,7 @@
     </head>
     <body>
 
-        <div class="navbar navbar-inverse" role="navigation">
+        <div class="navbar-static-top navbar-inverse" role="navigation">
             <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -32,35 +32,23 @@
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
-                        @if(Auth::check())
-                        <li><a href="{{URL::route('logout')}}">Logout</a></li>
-                        <li><a href="{{URL::route('admin-user-landing')}}">Profile</a></li>
-                        @else
-                        <li><a href="{{URL::route('login')}}">Login</a></li>
-                        <li><a href="{{URL::route('signup')}}">Signup</a></li>
-                        @endif
-                        <li><a href="{{URL::route('landing')}}">About</a></li>
+                        <li><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
+                        <li><a href="#">Link</a></li>
                     </ul>
                 </div><!--/.nav-collapse -->
-            </div>
-        </div>
-        <div>
-            @if(Session::has('message'))
-            @if(Session::has('success'))
-            <div class="alert alert-success">
-                <span class="glyphicon glyphicon-check" style="color: #030"></span>
-                @else
-                <div class="alert alert-warning">
-                    <span class="glyphicon glyphicon-warning-sign" style="color: #EE3322"></span>
-                    @endif
-                    {{Session::get('message')}}
-                </div>
-                @endif
-            </div>
-        </div>
+            </div>        
 
+        </div>
+        <div class="alert alert-success">
+            <span class="glyphicon glyphicon-check" style="color: #030"></span>
+
+        </div>
         <div class="container">
             @yield('content')
+            {{$content}}
         </div><!-- /.container -->
 
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
