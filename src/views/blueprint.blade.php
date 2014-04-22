@@ -48,7 +48,7 @@
         </div>
         <div class="container">
             @yield('content')
-            {{$content}}
+            {{isset($content)?$content:NULL}}
         </div><!-- /.container -->
 
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
