@@ -49,6 +49,3 @@ $social_action_route = "test";
         'value'=>'twitter'))}}   
 </div>
 {{Form::close()}}
-
-
-

@@ -19,8 +19,9 @@ Route::get('/', array('as' => 'start', function() {
 
 
 Route::get('test', array('as' => 'test', function() {
+    Auth::login(User::find(1));
     $layout = View::make('LorisLogin::blueprint');
-    return $layout->nest('content','LorisLogin::forms/login');
+    return $layout->nest('content','LorisLogin::admin/dashboard');
 }));
 Route::post('test', array('as' => 'test', 'before' => 'csrf', function() {
     var_dump(Input::all());
