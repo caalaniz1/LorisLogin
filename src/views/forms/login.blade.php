@@ -7,12 +7,18 @@
  */
 //Route to post to
 $form_route = "test";
+$form_action = "SLogin@login";
 $social_action_route = "test";
 ?>
-
-
+@if($errors->has('login'))
+<div class="alert alert-warning">
+    @foreach($errors->get('login') as $error)
+    <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
+    @endforeach
+</div>
+@endif
 {{Form::open(array
-    ('route' => $form_route, 'method' => 'POST', 'role'=>'form'))}}
+    ('action' => $form_action, 'method' => 'POST', 'role'=>'form'))}}
 
 <!--Form Name-->
 <div class="form-group"> <h1>Login</h2> </div>
@@ -23,6 +29,13 @@ $social_action_route = "test";
     {{Form::text('username', $value = NULL , array
         ('class' => 'form-control', 'maxlength'=> 20,
         'placeholder'=>'Username'))}}
+    @if($errors->has('username'))
+    <div class="alert alert-warning">
+        @foreach($errors->get('username') as $error)
+        <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
+        @endforeach
+    </div>
+    @endif
 </div>
 <div class="form-group">
     <span class = "glyphicon glyphicon-asterisk"></span>
@@ -30,6 +43,13 @@ $social_action_route = "test";
     {{Form::password('password' , array
         ('class' => 'form-control', 'maxlength'=> 20,
         'placeholder'=>'Password'))}}
+    @if($errors->has('password'))
+    <div class="alert alert-warning">
+        @foreach($errors->get('password') as $error)
+        <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
+        @endforeach
+    </div>
+    @endif
 </div>
 <div class="form-group">
     {{Form::submit('GO', array('class'=>'btn btn-default'))}}

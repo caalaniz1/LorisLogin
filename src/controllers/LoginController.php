@@ -1,5 +1,7 @@
 <?php
 
+include ('help.php');
+
 class SLogin extends BaseController {
 
     /**
@@ -16,7 +18,7 @@ class SLogin extends BaseController {
         }
         try {
             $network = Input::get('network');
-            if (!$network){
+            if (!$network) {
                 die(LoginHelper::$errorCodes['01']);
             }
             //Get Hybridauth Intance
@@ -58,21 +60,41 @@ class SLogin extends BaseController {
      * 
      * @param User $user
      */
-    public function login($user) {
-        if (!Auth::check()) {
-            //Login User
-            Auth::login($user);
-            //Retrive Session if any
-            $session = $user->hybridSessions()->getResults();
-            if ($session) {
-                $HAuth = LoginHelper::getHybridAuthObject();
-                $stored_session = unserialize($session->hybridauth_sessions);
-                $new_session = unserialize($HAuth->getSessionData());
+    public function login($reRoute = 'dashboard') {
+        $input = Input::all();
 
-                $restore_session = array_merge($new_session, $stored_session);
-                $HAuth->restoreSessionData(serialize($restore_session));
-            }
+
+        $validator = Validator::make(
+                        $input, array(
+                    'username' => 'required|alpha-dash',
+                    'password' => 'required|between:5,15|alpha-dash',
+                        )
+        );
+        if ($validator->fails()) {
+            return Redirect::back()->withErrors($validator)->
+                            withInput(Input::except('password'));
         }
+        //Login User
+        $cred = array(
+            'username' => $input['username'], 'password' => $input['password']
+        );
+
+        if (!Auth::Attempt($cred)) {
+            return Redirect::back()->withErrors(array('login'=>'Please try to login again'))->
+                            withInput(Input::except('password'));
+        }
+        $user = Auth::user();
+        //Retrive Session if any
+        $session = $user->hybridSessions()->getResults();
+        if ($session) {
+            $HAuth = LoginHelper::getHybridAuthObject();
+            $stored_session = unserialize($session->hybridauth_sessions);
+            $new_session = unserialize($HAuth->getSessionData());
+
+            $restore_session = array_merge($new_session, $stored_session);
+            $HAuth->restoreSessionData(serialize($restore_session));
+        }
+        return Redirect::route($reRoute);
     }
 
     /**
@@ -141,6 +163,58 @@ class SLogin extends BaseController {
         return $user;
     }
 
+    public function registerLocalProfile() {
+        if (!Auth::check()) {
+            return NULL;
+        }
+        $user = Auth::user();
+        $input = Input::all();
+        $input["birthDay"] = intval($input["birthDay"]);
+        $input["birthMonth"] = intval($input["birthMonth"]);
+        $input["birthYear"] = intval($input["birthYear"]);
+        $validator = Validator::make(
+                        $input, array(
+                    'firstName' => 'required|alpha',
+                    'lastName' => 'required|between:5,15|alpha',
+                    'birthDay' => 'integer|between:0,31',
+                    'birthMonth' => 'integer|between:0,12',
+                    'birthYear' => 'required|integer|between:0,3000',
+                    'description' => 'between:15,3000',
+                    'gender' => 'alpha|required',
+                    'photoUrl' => 'required|image',
+                    'email' => 'required|email',
+                    'address' => 'required|alpha_dash|max:30'
+                        )
+        );
+        if ($validator->fails()) {
+            return Redirect::back()->withErrors($validator)->withInput();
+        }
+        $input['description'] = e($input['description']);
+
+        $data = array(
+            'first_name' => $input['firstName'],
+            'last_name' => $input['lastName'],
+            'description' => $input['description'],
+            'gender' => $input['gender'],
+            'photo_URL' => $input['photoUrl'],
+            'birth_day' => $input['birthDay'],
+            'birth_month' => $input['birthMonth'],
+            'birth_year' => $input['birthYear'],
+            'email' => $input['email'],
+            'address' => $input['address'],
+            'country' => NULL,
+            'city' => NULL,
+            'zip' => NULL,
+        );
+
+        $profile = $user->localProfile()->getResults();
+        if ($profile) {
+            $profile->update($data);
+        } else {
+            $user->localProfile()->create($data);
+        }
+    }
+
     /**
      * Add user to the DB and return that user
      * 
@@ -200,7 +274,6 @@ class SLogin extends BaseController {
             $this->login($user);
             echo "logfed in: " . Auth::check() . '<br>';
             LoginHelper::printFormatVAr(LoginHelper::getHybridAuthObject()->getAdapter('twitter'));
-            
         } else {
             echo "Profile Not fount";
             echo "Registering profile..";
@@ -218,47 +291,4 @@ class SLogin extends BaseController {
 /**
  * Helper functions and variables
  */
-class LoginHelper extends SLogin {
 
-    //debugging
-    protected static function printFormatVar($var) {
-        echo '<pre>';
-        echo print_r($var);
-        echo '</pre>';
-    }
-
-    //debugging
-    protected static $errorCodes = array(
-        '01' => "\$_GET['network'] not defined",
-        '02' => "Profile not Found",
-    );
-    
-    protected static $successCodes = array();
-
-    /**
-     * Replace white spaces with underscore
-     * 
-     * @param string $name
-     * @return tring
-     */
-    protected static function formatName($name = NULL) {
-        return !$name ? NULL : preg_replace('/\s+/', '_', $name);
-    }
-
-    /**
-     * 
-     * @return Hybrid_Auth
-     */
-    protected static function getHybridAuthObject() {
-        //Get current Route
-        $route_name = Route::currentRouteName();
-        //Get configuration File
-        $_config = include app_path() . '/config/hybridauth.php';
-        $_config['base_url'] = route($route_name) . '?action=auth';
-        //GetObject
-        $hybridAuth = new Hybrid_Auth($_config);
-        //Return Object
-        return $hybridAuth;
-    }
-
-}
