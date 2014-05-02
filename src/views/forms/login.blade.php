@@ -8,7 +8,7 @@
 //Route to post to
 $form_route = "test";
 $form_action = "SLogin@login";
-$social_action_route = "test";
+$social_action_action = "SLogin@loginUser";
 ?>
 @if($errors->has('login'))
 <div class="alert alert-warning">
@@ -60,7 +60,7 @@ $social_action_route = "test";
 <h3>Or</h3>
 <div class="form-group">
     {{Form::open(array
-    ('route' => $social_action_route , 'method' => 'GET', 'role'=>'form'))}}
+    ('action' => $social_action_action , 'method' => 'GET', 'role'=>'form'))}}
     {{Form::submit('Facebook', array
         ('class'=>'btn btn btn-primary','name'=>'network' , 
         'value'=>'facebook'))}}

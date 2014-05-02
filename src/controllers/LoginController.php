@@ -1,6 +1,7 @@
 <?php
 
 include ('help.php');
+include('rules.php');
 
 class SLogin extends BaseController {
 
@@ -12,7 +13,7 @@ class SLogin extends BaseController {
      * 
      * @return Hybrid_Provider_Adapter Authenticated Hybrid Auth Adapter
      */
-    private function socialLogin() {
+    public function socialLogin() {
         if (Input::get('action') == "auth") {
             Hybrid_Endpoint::process();
         }
@@ -56,44 +57,45 @@ class SLogin extends BaseController {
     }
 
     /**
-     * Log User into application and retrive its past session if any
      * 
      * @param User $user
+     * @param string $reRoute
+     * @return type
      */
-    public function login($reRoute = 'dashboard') {
+    public function login($user = null, $reRoute = 'dashboard') {
         $input = Input::all();
 
+        if ($user == null) {
+            $validator = Validator::make(
+                            $input, array(
+                        'username' => 'required|alpha-dash',
+                        'password' => 'required|between:5,15|alpha-dash',
+                            )
+            );
+            if ($validator->fails()) {
+                return Redirect::back()->withErrors($validator)
+                                ->withInput(Input::except('password'));
+            }
+            //Login User
+            $cred = array(
+                'username' => $input['username'], 'password' => $input['password']
+            );
 
-        $validator = Validator::make(
-                        $input, array(
-                    'username' => 'required|alpha-dash',
-                    'password' => 'required|between:5,15|alpha-dash',
-                        )
-        );
-        if ($validator->fails()) {
-            return Redirect::back()->withErrors($validator)->
-                            withInput(Input::except('password'));
-        }
-        //Login User
-        $cred = array(
-            'username' => $input['username'], 'password' => $input['password']
-        );
-
-        if (!Auth::Attempt($cred)) {
-            return Redirect::back()->withErrors(array('login'=>'Please try to login again'))->
-                            withInput(Input::except('password'));
+            if (!Auth::Attempt($cred)) {
+                return Redirect::back()
+                                ->withErrors(array('login' => 'Please try to login again'))
+                                ->withInput(Input::except('password'));
+            }
+        } else {
+            Auth::login($user);
         }
         $user = Auth::user();
         //Retrive Session if any
         $session = $user->hybridSessions()->getResults();
         if ($session) {
-            $HAuth = LoginHelper::getHybridAuthObject();
-            $stored_session = unserialize($session->hybridauth_sessions);
-            $new_session = unserialize($HAuth->getSessionData());
-
-            $restore_session = array_merge($new_session, $stored_session);
-            $HAuth->restoreSessionData(serialize($restore_session));
+            $this->updateSession($session);
         }
+
         return Redirect::route($reRoute);
     }
 
@@ -105,16 +107,9 @@ class SLogin extends BaseController {
      */
     public function logout() {
         if (Auth::check()) {
-            $user = Auth::user();
             Auth::logout();
             $hybridauth = LoginHelper::getHybridAuthObject();
-            $session = $user->hybridSessions()->getResults();
-            if (!$session) {
-                $session = HybridSessions::create(array(
-                            'user_id' => $user->id,
-                ));
-            }
-            $session->saveConnection($hybridauth->getSessionData());
+            $hybridauth->logoutAllProviders();
         }
     }
 
@@ -139,21 +134,7 @@ class SLogin extends BaseController {
             $username = LoginHelper::formatName($UserProfile->displayName);
             $password = NULL;
         }
-        /**
-         * USER TABLE DETAILS
-          CREATE TABLE users (
-          id int(10) unsigned NOT NULL AUTO_INCREMENT,
-          username varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-          `password` varchar(256) COLLATE utf8_unicode_ci NOT NULL,
-          `privileges` smallint(6) NOT NULL DEFAULT '0',
-          local_profile_id int(10) unsigned DEFAULT NULL,
-          created_at timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-          updated_at timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-          PRIMARY KEY (id),
-          UNIQUE KEY users_username_unique (username)
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-         * 
-         */
+
         $user = User::create(array(
                     'username' => $username,
                     'password' => $password,
@@ -183,14 +164,13 @@ class SLogin extends BaseController {
                     'gender' => 'alpha|required',
                     'photoUrl' => 'required|image',
                     'email' => 'required|email',
-                    'address' => 'required|alpha_dash|max:30'
-                        )
+                    'address' => 'required|max:30|alpha_spaces',
+                        ), $GLOBALS['$validator_messages'] //rules.php
         );
         if ($validator->fails()) {
             return Redirect::back()->withErrors($validator)->withInput();
         }
         $input['description'] = e($input['description']);
-
         $data = array(
             'first_name' => $input['firstName'],
             'last_name' => $input['lastName'],
@@ -213,6 +193,7 @@ class SLogin extends BaseController {
         } else {
             $user->localProfile()->create($data);
         }
+        return Redirect::route('dashboard');
     }
 
     /**
@@ -222,17 +203,7 @@ class SLogin extends BaseController {
      * @param User $user
      */
     public function registerSocialProfile($HAuth, $user) {
-        /**
-         * CREATE TABLE social_profiles (
-          provider varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-          identifier bigint(20) unsigned NOT NULL,
-          user_id int(10) unsigned DEFAULT NULL,
-          hybridauth_session text COLLATE utf8_unicode_ci NOT NULL,
-          created_at timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-          updated_at timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-          PRIMARY KEY (identifier)
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-         */
+
         SocialProfile::create(array(
             'provider' => $HAuth->id,
             'identifier' => $HAuth->getUserProfile()->identifier,
@@ -240,23 +211,68 @@ class SLogin extends BaseController {
         ));
     }
 
-    public function sloginUser() {
+    /**
+     * 
+     * @param HybridSessions $session
+     * @return bool
+     */
+    public function updateSession($session) {
 
-        $this->socialLogin();
-        $user = User::find(1);
-        $this->login($user);
+        if (!$session) {
+            $session = HybridSessions::create(array(
+                        'user_id' => Auth::user()->id,
+            ));
+        }
+
         $HAuth = LoginHelper::getHybridAuthObject();
-        LoginHelper::printFormatVar($HAuth->getConnectedProviders());
-        $this->logout();
-        $HAuth->logoutAllProviders();
+        $stored_session = unserialize($session->hybridauth_sessions);
+        $new_session = unserialize($HAuth->getSessionData());
+        
+        
+        if (is_array($new_session) && is_array($stored_session)) {
+            $restore_session = serialize(
+                    array_merge($new_session, $stored_session));
+        } else if (is_array($new_session) && !is_array($stored_session)) {
+            $restore_session = serialize($new_session);
+        } else if (is_array($stored_session) && !is_array($new_session)) {
+            $restore_session = serialize($stored_session);
+        } else {
+            die("something must have gone REALLY bad");
+        }
+
+
+
+        $HAuth->restoreSessionData($restore_session);
+        $session->saveConnection($HAuth->getSessionData());
+    }
+
+    public function addProvider() {
+        $adapter = $this->socialLogin();
+        //var_dump($adapter);
+        //die();
+        if ($adapter) {
+            $this->registerSocialProfile($adapter, Auth::user());
+            //Sv session in DB
+            $session = Auth::user()->hybridSessions()->getResults();
+            $this->updateSession($session);
+        }else{
+            var_dump($adapter);
+            die();
+        }
+
+
+
+        return Redirect::route('dashboard');
     }
 
     /**
      * 
+     * @return type
      */
     public function loginUser() {
         //Get Adapter
         $adapter = $this->socialLogin();
+        //var_dump($adapter);die();
         //Get User Profile from Adapter
         //LoginHelper::printFormatVAr($adapter->adapter);
         //echo $adapter->getUserProfile()->identifier;
@@ -265,30 +281,24 @@ class SLogin extends BaseController {
         //LoginHelper::printFormatVAr($adapter);
         //Look for profile in DB
         $userProfile = SocialProfile::find($profile->identifier);
+        //die();
         //If Found
         if ($userProfile) {
             //Get User
             $user = $userProfile->user()->getResults();
 
             //Log in User
-            $this->login($user);
-            echo "logfed in: " . Auth::check() . '<br>';
-            LoginHelper::printFormatVAr(LoginHelper::getHybridAuthObject()->getAdapter('twitter'));
+            return $this->login($user);
+            //echo "logfed in: " . Auth::check() . '<br>';
+            //LoginHelper::printFormatVAr(LoginHelper::getHybridAuthObject()
+            //               ->getAdapter('twitter'));
         } else {
-            echo "Profile Not fount";
-            echo "Registering profile..";
+            //echo "Profile Not fount";
+            //echo "Registering profile..";
             $newUser = $this->registerUser($adapter);
             $this->registerSocialProfile($adapter, $newUser);
+            return $this->login($newUser);
         }
-
-        $this->logout();
-        echo "loged out: " . Auth::check() . '<br>';
-        $adapter->logout();
     }
 
 }
-
-/**
- * Helper functions and variables
- */
-

@@ -9,19 +9,19 @@
 class LoginHelper{
 
     //debugging
-    protected static function printFormatVar($var) {
+    public static function printFormatVar($var) {
         echo '<pre>';
         echo print_r($var);
         echo '</pre>';
     }
 
     //debugging
-    protected static $errorCodes = array(
+    public static $errorCodes = array(
         '01' => "\$_GET['network'] not defined",
         '02' => "Profile not Found",
     );
     
-    protected static $successCodes = array();
+    public static $successCodes = array();
 
     /**
      * Replace white spaces with underscore
@@ -29,7 +29,7 @@ class LoginHelper{
      * @param string $name
      * @return tring
      */
-    protected static function formatName($name = NULL) {
+    public static function formatName($name = NULL) {
         return !$name ? NULL : preg_replace('/\s+/', '_', $name);
     }
 
@@ -47,6 +47,10 @@ class LoginHelper{
         $hybridAuth = new Hybrid_Auth($_config);
         //Return Object
         return $hybridAuth;
+    }
+    
+    public static function processPicture($file){
+        
     }
 
 }

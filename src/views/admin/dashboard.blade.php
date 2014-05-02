@@ -46,15 +46,23 @@ $localProfile = $user->localProfile()->getResults();
             </div>
         </div>
         @else
-        You don't have a Local Profile yet <a href="#">Fill it out here</a>
+        You don't have a Local Profile yet <a href="{{URL::sroute("edit-profile")}}">Fill it out here</a>
         @endif
     </div>
     <div class="col-sm-6">
-        <h2>Registered Social Service Providers</h2>
         <div class='row'>
+            <h2>Registered Social Service Providers</h2>
             @foreach($user->socialProfiles()->getResults() as $as)
             <div class="col-sm-12">{{$as->provider}}</div>
             @endforeach
+        </div>
+        <div class='row'>
+            <div class='row'>
+                <a href="{{route('tests')}}?p=facebook"><button class="btn btn-default">
+                        Test Fb</button></a>
+                <a href=""> <button class="btn btn-default">
+                        Test Twitter</button></a>
+            </div>
         </div>
     </div>
     <div class="col-sm-4">

@@ -18,69 +18,119 @@ function showview($view_name) {
 }
 
 Route::group(array('prefix' => 'users'), function() {
+    
+    Route::get('socialConnection',array('as' => 'sociallogin',
+        'uses'=>'SLogin@loginUser'));
 
     Route::get('/', array('as' => 'start', function() {
-        return View::make('LorisLogin::blueprint');
+        $conected = (Auth::check()) ? 'Online' : 'Offline';
+
+        $content = "<h1>" . $conected . "</h1>";
+
+
+        return View::make('LorisLogin::blueprint', array('content' => $content));
     }));
 
-    
+
     Route::group(array('before' => 'auth'), function() {
-        
+
         //display edit form
-        Route::get('edit', array('as' => 'edit-profile',function() {
-            
-            $user = Auth::user();
-            $profile = $user->localProfile()->getResults();
-            $input = NULL;
-            if($profile){
-                Input::get('firstName' ,  $profile['first_name']);
-            }
-            
-           //die(var_dump(Input::all()));
-            
+        Route::get('edit', array('as' => 'edit-profile', function() {
             return showview('forms/profile');
         }));
+
+        Route::get('dashboard', array('as' => 'dashboard', function() {
         
-        Route::get('dashboard', array('as' => 'dashboard',function() {
             return showview('admin/dashboard');
+        
         }));
         
+        Route::get('addProvider', array('as' => 'addProvider', 
+            'uses' => 'SLogin@addProvider'));
+        
+        Route::get('testAPI', array('as' => 'tests', function() {
+        //Get current Route
+        $route_name = Route::currentRouteName();
+        //Get configuration File
+        $_config = include app_path() . '/config/hybridauth.php';
+        $_config['base_url'] = route($route_name) . '?action=auth';
+        //GetObject
+        $hybridAuth = new Hybrid_Auth($_config);
+        
+        print_r($hybridAuth->getProviders());echo '<br><br><br>';
+        print_r($hybridAuth->getSessionData());echo '<br><br><br>';
+        echo "<pre>";
+        print_r($hybridAuth->getAdapter(Input::get('p'))->getUserProfile());
+        echo "</pre>";
+        echo "<pre>";
+        print_r($hybridAuth->getConnectedProviders());
+        echo "</pre>";
+        
+        
+        echo "<pre>";
+        print_r($hybridAuth->getAdapter(Input::get('p'))->getUserContacts());
+        echo "</pre>";
+        
+        
+        echo "<pre>";
+        print_r($hybridAuth->getAdapter(Input::get('p'))->isUserConnected());
+        echo "</pre>";
+        
+    }));
+
         //log out action
-        Route::get('logout', array('as' => 'logout-user','uses' =>'SLogin@logout'));
-        
+        Route::get('logout', array('as' => 'logout-user', 
+            'uses' => 'SLogin@logout'));
+
         //Form Actions
-        Route::group(array('before'=>'crsf'),function(){
-            
+        Route::group(array('before' => 'crsf'), function() {
+
             Route::post('edit', array('as' => 'edit-profile-action',
-                'uses' =>'SLogin@registerLocalProfile'));
-            
+                'uses' => 'SLogin@registerLocalProfile'));
+
             Route::post('login', array('as' => 'login-user-action',
-                'uses' =>'SLogin@registerLocalProfile'));
-        
+                'uses' => 'SLogin@registerLocalProfile'));
         });
-    });
-    
-    
-    Route::group(array('before' => 'guest'), function() {
-        
-        //display regsiter form
-        Route::get('register', array('as' => 'register-user',function() {
-                return showview('forms/register');    
-        }));
-        
-        //display login form
-        Route::get('login', array('as' => 'login-user',function() {
-                return showview('forms/login');    
-        }));
-        
-        Route::group(array('before'=>'crsf'),function(){
-            Route::post('login', array('as' => 'login-user-action',
-                'uses' =>'SLogin@login'));
-        });
-        
     });
 
+
+    Route::group(array('before' => 'guest'), function() {
+
+        //display regsiter form
+        Route::get('register', array('as' => 'register-user', function() {
+            return showview('forms/register');
+        }));
+
+        //display login form
+        Route::get('login', array('as' => 'login-user', function() {
+            return showview('forms/login');
+        }));
+        
+        Route::get('loginWithSocial', array(
+            'as' => 'login-user-social','uses' => 'SLogin@loginUser'));
+    
+        Route::group(array('before' => 'crsf'), function() {
+            Route::post('login', array('as' => 'login-user-action',
+                'uses' => 'SLogin@login'));
+        });
+    });
+    
+    
+    
+    
+    
+    
 });
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -98,16 +148,6 @@ Route::post('test', array('as' => 'test', 'before' => 'csrf', function() {
 var_dump(Input::all());
 }));
 
-
-
-
-
-
-
-
-
-
-
 function blah() {
     //Get current Route
     $route_name = Route::currentRouteName();
@@ -124,7 +164,7 @@ function blah() {
             Hybrid_Endpoint::process();
         } catch (Exception $e) {
             // redirect back to http://URL/social/
-            echo var_dump($e);
+            //echo var_dump($e);
             return Redirect::route($route_name);
         }
         return;
@@ -157,6 +197,8 @@ Route::get('test124', array('as' => 'blahs', function() {
 
 var_dump(formatName());
 }));
+
+
 Route::get('test123', array('as' => 'blah', function() {
 $a = blah();
 
@@ -164,7 +206,9 @@ $a = blah();
 if ($a) {
     //
     print_r($a->getConnectedProviders());
-    echo "<pre>"; print_r($a); echo "</pre>";
+    echo "<pre>";
+    print_r($a);
+    echo "</pre>";
     echo "<br>";
     echo "<pre>";
     print_r($a->getAdapter('facebook')->getUserProfile());
