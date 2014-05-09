@@ -32,20 +32,34 @@
                 </div>
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
-                        <li><a href="#">Link</a></li>
+                        @if(Auth::guest())
+                        <li><a href="{{URL::route("login-user")}}">Login</a></li>
+                        <li><a href="{{URL::route("register-user")}}">Register</a></li>
+                        @elseif(Auth::check())
+                        <li><a href="{{URL::route("dashboard")}}">Dashboard</a></li>
+                        <li><a href="{{URL::route("edit-profile")}}">Edit Profile</a></li>
+                        <li><a href="{{URL::route("logout-user")}}">Logout</a></li>
+                        <form action="{{URL::route("addProvider")}}" method="GET"class="navbar-form navbar-left right" role="network">
+                            <div class="form-group">
+                                <input name = "network" type="radio" value="facebook">Facebook
+                                <input name = "network" type="radio" value="twitter">Twitter
+                            </div>
+                            <button type="submit" class="btn btn-default">Add Social Profile</button>
+                        </form>
+                        @endif
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>        
 
         </div>
-        <div class="alert alert-success">
-            <span class="glyphicon glyphicon-check" style="color: #030"></span>
+        @if($errors->has('error'))
+        <div class="alert alert-warning">
+            @foreach($errors->get('error') as $error)
+            <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
+            @endforeach
 
         </div>
+        @endif
         <div class="container">
             @yield('content')
             {{isset($content)?$content:NULL}}

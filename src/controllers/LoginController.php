@@ -227,8 +227,8 @@ class SLogin extends BaseController {
         $HAuth = LoginHelper::getHybridAuthObject();
         $stored_session = unserialize($session->hybridauth_sessions);
         $new_session = unserialize($HAuth->getSessionData());
-        
-        
+
+
         if (is_array($new_session) && is_array($stored_session)) {
             $restore_session = serialize(
                     array_merge($new_session, $stored_session));
@@ -251,11 +251,16 @@ class SLogin extends BaseController {
         //var_dump($adapter);
         //die();
         if ($adapter) {
-            $this->registerSocialProfile($adapter, Auth::user());
-            //Sv session in DB
-            $session = Auth::user()->hybridSessions()->getResults();
-            $this->updateSession($session);
-        }else{
+            if (!SocialProfile::find($adapter->getUserProfile()->identifier)) {
+                $this->registerSocialProfile($adapter, Auth::user());
+                //Sv session in DB
+                $session = Auth::user()->hybridSessions()->getResults();
+                $this->updateSession($session);
+            } else {
+                return Redirect::route('dashboard')
+                                ->withErrors(array("error" => "That Profile is already registered"));
+            }
+        } else {
             var_dump($adapter);
             die();
         }
