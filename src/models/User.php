@@ -3,7 +3,6 @@
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
 
-
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
     protected $guarded = array();
@@ -62,7 +61,19 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public function hybridSessions() {
-          return $this->hasOne('HybridSessions', 'user_id');
+        return $this->hasOne('HybridSessions', 'user_id');
+    }
+
+    public function getRememberToken() {
+        return $this->remember_token;
+    }
+
+    public function setRememberToken($value) {
+        $this->remember_token = $value;
+    }
+
+    public function getRememberTokenName() {
+        return 'remember_token';
     }
 
 }
