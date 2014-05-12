@@ -41,8 +41,12 @@
                         <li><a href="{{URL::route("logout-user")}}">Logout</a></li>
                         <form action="{{URL::route("addProvider")}}" method="GET"class="navbar-form navbar-left right" role="network">
                             <div class="form-group">
-                                <input name = "network" type="radio" value="facebook">Facebook
-                                <input name = "network" type="radio" value="twitter">Twitter
+                                <span style="color:white">
+                                    <input name = "network" type="radio" value="facebook">Facebook
+                                    &nbsp;&nbsp;&nbsp;
+                                    <input name = "network" type="radio" value="twitter">Twitter
+                                    &nbsp;&nbsp;
+                                </span>
                             </div>
                             <button type="submit" class="btn btn-default">Add Social Profile</button>
                         </form>

@@ -144,6 +144,32 @@ class SLogin extends BaseController {
         return $user;
     }
 
+    public function registerUserLocal() {
+        $input = Input::all();
+
+        $validator = Validator::make(
+                        $input, array(
+                    'username' => 'required|alpha_dash|unique:users,username',
+                    'password' => 'required|same:password-r|alpha_dash',
+                    'password-r' => 'required|same:password|alpha_dash',
+                    'email' => 'required|email|unique:local_profiles,email',
+                        ), $GLOBALS['$validator_messages'] //rules.php
+        );
+         if ($validator->fails()) {
+            return Redirect::back()->withErrors($validator)->
+                    withInput(Input::except('password'));
+        }
+        $data = array(
+            'username'=> $input['username'],
+            'password'=> Hash::make($input['password']),
+            'privileges' => 1,
+                );
+        $newUser  = User::create($data);
+        LocalProfile::create(array("email"=>$input['email'], 'user_id'=> $newUser->id));
+        Auth::login($newUser);
+        return Redirect::route('dashboard');
+    }
+
     public function registerLocalProfile() {
         if (!Auth::check()) {
             return NULL;
@@ -177,9 +203,8 @@ class SLogin extends BaseController {
             'description' => $input['description'],
             'gender' => $input['gender'],
             'photo_URL' => $input['photoUrl'],
-            'birth_day' => $input['birthDay'],
-            'birth_month' => $input['birthMonth'],
-            'birth_year' => $input['birthYear'],
+            'date_of_birth' =>
+            $input['birthYear'] . '-' . $input['birthMonth'] . '-' . $input['birthDay'],
             'email' => $input['email'],
             'address' => $input['address'],
             'country' => NULL,

@@ -14,7 +14,7 @@ class CreateUsersTable extends Migration {
         Schema::create('users', function($table) {
             $table->increments('id');
             $table->string('username', '20')->unique();
-            $table->string('password', '256');
+            $table->string('password', '256')->nullable();
             $table->smallInteger('privileges')->default(0);
 
             //To user local profile

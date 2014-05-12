@@ -26,10 +26,7 @@ class CreateUserSocialProfilesTable extends Migration {
             $table->integer('user_id')
                     ->nullable()
                     ->unsigned();
-
-            //hybridauth_session
-            $table->text('hybridauth_session');
-
+            
             $table->timestamps();
         });
     }

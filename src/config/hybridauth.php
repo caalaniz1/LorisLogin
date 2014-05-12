@@ -1,7 +1,7 @@
 <?php
 
 return array(
-    "base_url" => "http://dev.local/slowloris/public/social/auth",
+    "base_url" => "blah",
     "providers" => array(
         "Google" => array(
             "enabled" => true,
@@ -12,8 +12,8 @@ return array(
             "keys" => array("id" => "605542416204530", "secret" => "b76491b3c8d9602d5572eab17c15b000"),
         ),
         "Twitter" => array(
-            "enabled" => false,
-            "keys" => array("key" => "ID", "secret" => "SECRET")
+            "enabled" => true,
+            "keys" => array("key" => "RCbKXkJIt4G3gvIlfQpVKRgiB", "secret" => "OFLC5a45A7PwoXNPk3rahTRF96uECShlXWRyeTDiFyW9DXfk2n")
         )
     ),
 );

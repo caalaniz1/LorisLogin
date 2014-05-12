@@ -36,7 +36,7 @@ $localProfile = $user->localProfile()->getResults();
                     {{$localProfile->zip}}
                 </p>
                 <p><span style="font-weight: bold">E-mail: </span>{{$localProfile->email}}</p>
-                <p><span style="font-weight: bold">Birth Date: </span>{{$localProfile->birth_month}}/{{$localProfile->birth_day}}/{{$localProfile->birth_year}}</p>
+                <p><span style="font-weight: bold">Date of BIrth:</span>{{$localProfile->date_of_birth}}</p>
             </div>
         </div>
         <div class='row'>

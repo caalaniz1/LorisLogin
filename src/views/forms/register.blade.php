@@ -6,7 +6,7 @@
  * @author Carlos A. Alaniz <carlos@redpandadev.com>
  */
 //Route to post to
-$form_route = "test";
+$form_route = "registerlocal";
 $social_action_route = "test";
 ?>
 
@@ -22,12 +22,26 @@ $social_action_route = "test";
     {{Form::text('username', $value = NULL , array
         ('class' => 'form-control', 'maxlength'=> 20,
         'placeholder'=>'Username'))}}
+    @if($errors->has('username'))
+    <div class="alert alert-warning">
+        @foreach($errors->get('username') as $error)
+        <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
+        @endforeach
+    </div>
+    @endif
 </div>
 <div class="form-group">
     {{Form::label('email', 'Email')}}
-    {{Form::email('emai', $value = NULL , array
+    {{Form::email('email', $value = NULL , array
         ('class' => 'form-control', 'maxlength'=> 110,
         'placeholder'=>'email@domain.com'))}}
+    @if($errors->has('email'))
+    <div class="alert alert-warning">
+        @foreach($errors->get('email') as $error)
+        <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
+        @endforeach
+    </div>
+    @endif
 </div>
 <div style='
      border:1px solid #ccc; width: 100%; height: 0px; margin: 4px 0px;'></div>
@@ -36,12 +50,26 @@ $social_action_route = "test";
     {{Form::password('password' , array
         ('class' => 'form-control', 'maxlength'=> 20,
         'placeholder'=>'Password'))}}
+    @if($errors->has('password'))
+    <div class="alert alert-warning">
+        @foreach($errors->get('password') as $error)
+        <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
+        @endforeach
+    </div>
+    @endif
 </div>
 <div class="form-group">
     {{Form::label('password-r', 'Repeat Password')}}
     {{Form::password('password-r' , array
         ('class' => 'form-control', 'maxlength'=> 20,
         'placeholder'=>'Password'))}}
+    @if($errors->has('password-r'))
+    <div class="alert alert-warning">
+        @foreach($errors->get('password-r') as $error)
+        <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
+        @endforeach
+    </div>
+    @endif
 </div>
 <div class="form-group">
     {{Form::submit('GO', array('class'=>'btn btn-default'))}}

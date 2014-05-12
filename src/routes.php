@@ -18,36 +18,35 @@ function showview($view_name) {
 }
 
 Route::group(array('prefix' => 'users'), function() {
-    
-    Route::get('socialConnection',array('as' => 'sociallogin',
-        'uses'=>'SLogin@loginUser'));
+
+    Route::get('socialConnection', array('as' => 'sociallogin',
+        'uses' => 'SLogin@loginUser'));
 
     Route::get('/', array('as' => 'start', function() {
-        $conected = (Auth::check()) ? 'Online' : 'Offline';
+    $conected = (Auth::check()) ? 'Online' : 'Offline';
 
-        $content = "<h1>" . $conected . "</h1>";
+    $content = "<h1>" . $conected . "</h1>";
 
 
-        return View::make('LorisLogin::blueprint', array('content' => $content));
-    }));
+    return View::make('LorisLogin::blueprint', array('content' => $content));
+}));
 
 
     Route::group(array('before' => 'auth'), function() {
 
         //display edit form
         Route::get('edit', array('as' => 'edit-profile', function() {
-            return showview('forms/profile');
-        }));
+        return showview('forms/profile');
+    }));
 
         Route::get('dashboard', array('as' => 'dashboard', function() {
-        
-            return showview('admin/dashboard');
-        
-        }));
-        
-        Route::get('addProvider', array('as' => 'addProvider', 
+
+        return showview('admin/dashboard');
+    }));
+
+        Route::get('addProvider', array('as' => 'addProvider',
             'uses' => 'SLogin@addProvider'));
-        
+
         Route::get('testAPI', array('as' => 'tests', function() {
         //Get current Route
         $route_name = Route::currentRouteName();
@@ -56,30 +55,33 @@ Route::group(array('prefix' => 'users'), function() {
         $_config['base_url'] = route($route_name) . '?action=auth';
         //GetObject
         $hybridAuth = new Hybrid_Auth($_config);
-        
-        print_r($hybridAuth->getProviders());echo '<br><br><br>';
-        print_r($hybridAuth->getSessionData());echo '<br><br><br>';
+
+        print_r($hybridAuth->getProviders());
+        echo '<br><br><br>';
+        print_r($hybridAuth->getSessionData());
+        echo '<br><br><br>';
         echo "<pre>";
         print_r($hybridAuth->getAdapter(Input::get('p'))->getUserProfile());
         echo "</pre>";
         echo "<pre>";
         print_r($hybridAuth->getConnectedProviders());
         echo "</pre>";
-        
-        
-        echo "<pre>";
-        print_r($hybridAuth->getAdapter(Input::get('p'))->getUserContacts());
-        echo "</pre>";
-        
-        
-        echo "<pre>";
+
+
+
+
         print_r($hybridAuth->getAdapter(Input::get('p'))->isUserConnected());
         echo "</pre>";
-        
+
+        echo "<pre>";
+        $facebook = $hybridAuth->getAdapter('facebook')->api();
+        $fb = $facebook->api('me/inbox');
+        echo $fb['message'];
+        echo "</pre>";
     }));
 
         //log out action
-        Route::get('logout', array('as' => 'logout-user', 
+        Route::get('logout', array('as' => 'logout-user',
             'uses' => 'SLogin@logout'));
 
         //Form Actions
@@ -98,28 +100,24 @@ Route::group(array('prefix' => 'users'), function() {
 
         //display regsiter form
         Route::get('register', array('as' => 'register-user', function() {
-            return showview('forms/register');
-        }));
+        return showview('forms/register');
+    }));
 
         //display login form
         Route::get('login', array('as' => 'login-user', function() {
-            return showview('forms/login');
-        }));
-        
+        return showview('forms/login');
+    }));
+
         Route::get('loginWithSocial', array(
-            'as' => 'login-user-social','uses' => 'SLogin@loginUser'));
-    
+            'as' => 'login-user-social', 'uses' => 'SLogin@loginUser'));
+
         Route::group(array('before' => 'crsf'), function() {
             Route::post('login', array('as' => 'login-user-action',
                 'uses' => 'SLogin@login'));
+            Route::post('register', array('as' => 'registerlocal',
+                'uses' => 'SLogin@registerUserLocal'));
         });
     });
-    
-    
-    
-    
-    
-    
 });
 
 
