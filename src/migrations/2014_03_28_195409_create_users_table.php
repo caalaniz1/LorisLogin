@@ -15,6 +15,7 @@ class CreateUsersTable extends Migration {
             $table->increments('id');
             $table->string('username', '20')->unique();
             $table->string('password', '256')->nullable();
+            $table->string('remember_token', '100')->nullable();
             $table->smallInteger('privileges')->default(0);
 
             //To user local profile
