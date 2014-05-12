@@ -92,10 +92,7 @@ class SLogin extends BaseController {
         $user = Auth::user();
         //Retrive Session if any
         $session = $user->hybridSessions()->getResults();
-        if ($session) {
-            $this->updateSession($session);
-        }
-
+        $this->updateSession($session);
         return Redirect::route($reRoute);
     }
 
@@ -141,6 +138,7 @@ class SLogin extends BaseController {
                     'privileges' => $privileges,
                     'local_profile_id' => NULL,
         ));
+
         return $user;
     }
 
@@ -155,17 +153,17 @@ class SLogin extends BaseController {
                     'email' => 'required|email|unique:local_profiles,email',
                         ), $GLOBALS['$validator_messages'] //rules.php
         );
-         if ($validator->fails()) {
+        if ($validator->fails()) {
             return Redirect::back()->withErrors($validator)->
-                    withInput(Input::except('password'));
+                            withInput(Input::except('password'));
         }
         $data = array(
-            'username'=> $input['username'],
-            'password'=> Hash::make($input['password']),
+            'username' => $input['username'],
+            'password' => Hash::make($input['password']),
             'privileges' => 1,
-                );
-        $newUser  = User::create($data);
-        LocalProfile::create(array("email"=>$input['email'], 'user_id'=> $newUser->id));
+        );
+        $newUser = User::create($data);
+        LocalProfile::create(array("email" => $input['email'], 'user_id' => $newUser->id));
         Auth::login($newUser);
         return Redirect::route('dashboard');
     }

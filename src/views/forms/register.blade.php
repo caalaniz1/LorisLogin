@@ -7,7 +7,7 @@
  */
 //Route to post to
 $form_route = "registerlocal";
-$social_action_route = "test";
+$social_action_route = "SLogin@loginUser";
 ?>
 
 
@@ -80,7 +80,7 @@ $social_action_route = "test";
 <h3>Or</h3>
 <div class="form-group">
     {{Form::open(array
-    ('route' => $social_action_route , 'method' => 'GET', 'role'=>'form'))}}
+    ('action' => $social_action_route , 'method' => 'GET', 'role'=>'form'))}}
     {{Form::submit('Facebook', array
         ('class'=>'btn btn btn-primary','name'=>'network' , 
         'value'=>'facebook'))}}
