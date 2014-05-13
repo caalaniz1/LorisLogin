@@ -271,8 +271,7 @@ class SLogin extends BaseController {
 
     public function addProvider() {
         $adapter = $this->socialLogin();
-        //var_dump($adapter);
-        //die();
+
         if ($adapter) {
             if (!SocialProfile::find($adapter->getUserProfile()->identifier)) {
                 $this->registerSocialProfile($adapter, Auth::user());
@@ -287,9 +286,6 @@ class SLogin extends BaseController {
             var_dump($adapter);
             die();
         }
-
-
-
         return Redirect::route('dashboard');
     }
 

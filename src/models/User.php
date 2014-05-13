@@ -6,10 +6,13 @@ use Illuminate\Auth\Reminders\RemindableInterface;
 class User extends Eloquent implements UserInterface, RemindableInterface {
 
     protected $guarded = array();
-
-    /**
-     * Set of Validation Rules   
-     */
+    //The folder used to store profile pictures
+    protected $picture_Path = "uploads/profilePictures/";
+    protected $maxUploads = 5;
+    protected $picture_info = array(
+        "size" => 0,
+        "paths"=>array()
+    );
 
     /**
      * The database table used by the model.
@@ -41,6 +44,19 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      */
     public function getAuthPassword() {
         return $this->password;
+    }
+
+    public static function create(array $attributes) {
+        $newUser =  parent::create($attributes);
+        $folderPath = $newUser->picture_Path . $newUser->id;
+        if (!file_exists($folderPath)) {
+            //create directory for profilepictures
+            mkdir($folderPath, 0777, true);
+            //add setings file
+             file_put_contents($folderPath . "/setting.json", 
+                     json_encode($newUser->picture_info));
+        }
+        return $newUser;
     }
 
     /**

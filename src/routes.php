@@ -11,6 +11,12 @@
   |
  */
 
+
+Route::get('testupload', function(){
+    return View::make('LorisLogin::forms/imageupload');
+});
+Route::post('postpic', array('uses'=>'ProfilePicture@upload'));
+
 function showview($view_name) {
 
     $layout = View::make('LorisLogin::blueprint');

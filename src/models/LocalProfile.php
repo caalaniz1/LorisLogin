@@ -1,6 +1,7 @@
 <?php
 
-class LocalProfile extends Eloquent  {
+class LocalProfile extends Eloquent {
+
     //all elements are mass fillable
     protected $guarded = array();
 
