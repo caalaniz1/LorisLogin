@@ -19,8 +19,7 @@ function ca($key, $profile) {
 ?>
 
 {{Form::open(array
-    ('action' => $form_action , 'method' => 'POST', 'role'=>'form', 
-    'files' => true))}}
+    ('action' => $form_action , 'method' => 'POST', 'role'=>'form'))}}
 
 <!--Form Name-->
 <div class="form-group"> <h1>Profile</h2> </div>
@@ -117,19 +116,6 @@ function ca($key, $profile) {
     @endif
 </div>
 
-<!--Profile Picture-->
-<div class="form-group">
-    {{Form::label('photoUrl', 'Profile Picture')}}
-    MAKE THIS WORK!
-    {{Form::file('photoUrl')}}
-    @if($errors->has('photoUrl'))
-    <div class="alert alert-warning">
-        @foreach($errors->get('photoUrl') as $error)
-        <p><span class="glyphicon glyphicon-remove" style="color: #C52F24"></span>{{$error}}</p>
-        @endforeach
-    </div>
-    @endif
-</div>
 
 <!--E-mail-->
 <div class="form-group">

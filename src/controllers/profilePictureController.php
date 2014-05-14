@@ -10,8 +10,12 @@ class ProfilePicture extends BaseController {
      */
     public function upload() {
         try {
-            $folderPath = "uploads/profilePictures/" . Auth::user()->id . '';
-            $settings = json_decode(file_get_contents($folderPath . "/setting.json"), true);
+            $folderPath = Auth::user()->getFolderPath();
+            $settings = Auth::user()->getFileSettings();
+            //check that form has a file
+            if(!Input::hasFile("profile_picture")){
+                return Redirect::back();
+            }
             //Check for limit before continue
             if ($settings['size'] >= 5) {
                 return Redirect::back()->withErrors(array(
@@ -40,27 +44,76 @@ class ProfilePicture extends BaseController {
             //ok its where its suppoused to be now, lets report that is there.
             $settings["paths"][$name] = true;
             $settings["size"] ++;
+            file_put_contents($folderPath . "/setting.json", json_encode($settings));
+            
             //finally save it!
             if (!Auth::user()->localProfile()->getResults()) {
                 Auth::user()->localProfile()->create(
-                        array('photo_url' => URL::asset("$folderPath/$name")));
+                        array('photo_url' => Auth::user()->getPictureUrl($name)));
             } else {
                 Auth::user()->localProfile()->
-                        update(array('photo_url' => URL::asset("$folderPath/$name")));
+                        update(array('photo_url' => Auth::user()->getPictureUrl($name)));
             }
-            file_put_contents($folderPath . "/setting.json", json_encode($settings));
+            return Redirect::back();
         } catch (Exception $e) {
             return $e->getMessage();
         }
     }
 
-    public function update($path) {      
-        if (!Auth::user()->localProfile()->getResults()) {
-            Auth::user()->localProfile()->create(
-                    array('photo_url' => $path));
-        } else {
-            Auth::user()->localProfile()->
-                    update(array('photo_url' => $path));
+    public function select() {
+        try {
+            $input = Input::all();
+            $validator = Validator::make(
+                            $input, array('select' => "alphanum | size:15")
+            );
+            if ($validator->fails()) {
+                return Redirect::back()->withErrors($validator);
+            }
+            $picture = Auth::user()->getPictureUrl($input['select']);
+            if ($picture) {
+                Auth::user()->localProfile()->
+                        update(array('photo_url' => URL::asset($picture)));
+            } else {
+                return Redirect::back()->withErrors(
+                                array("genericError" => "That file does not exits"));
+            }
+            return Redirect::back();
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function delete() {
+        try {
+            $input = Input::all();
+            $localProfile = Auth::user()->localProfile()->getResults();
+            $folderPath = Auth::user()->getFolderPath();
+            $settings = Auth::user()->getFileSettings();
+            $validator = Validator::make(
+                            $input, array('delete' => "alphanum | size:15")
+            );
+            if ($validator->fails()) {
+                return Redirect::back()->withErrors($validator);
+            }
+            $picture = Auth::user()->getPictureUrl($input['delete']);
+
+
+            if (($picture)) {
+                unset($settings["paths"][$input["delete"]]);
+                unlink(public_path() . '/' . $folderPath . '/' . $input['delete']);
+                $settings["size"] --;
+                if ($localProfile->photo_url) {
+                    Auth::user()->localProfile->update(array('photo_url' => NULL));
+                }
+            } else {
+                return Redirect::back()->withErrors(
+                                array("genericError" => "That file does not exits"));
+            }
+
+            file_put_contents($folderPath . "/setting.json", json_encode($settings));
+            return Redirect::back();
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
     }
 

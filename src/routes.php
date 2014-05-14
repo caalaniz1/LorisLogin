@@ -11,12 +11,6 @@
   |
  */
 
-
-Route::get('testupload', function(){
-    return View::make('LorisLogin::forms/imageupload');
-});
-Route::post('postpic', array('uses'=>'ProfilePicture@upload'));
-
 function showview($view_name) {
 
     $layout = View::make('LorisLogin::blueprint');
@@ -29,67 +23,70 @@ Route::group(array('prefix' => 'users'), function() {
         'uses' => 'SLogin@loginUser'));
 
     Route::get('/', array('as' => 'start', function() {
-    $conected = (Auth::check()) ? 'Online' : 'Offline';
+        $conected = (Auth::check()) ? 'Online' : 'Offline';
 
-    $content = "<h1>" . $conected . "</h1>";
+        $content = "<h1>" . $conected . "</h1>";
 
 
-    return View::make('LorisLogin::blueprint', array('content' => $content));
-}));
+        return View::make('LorisLogin::blueprint', array('content' => $content));
+    }));
 
 
     Route::group(array('before' => 'auth'), function() {
-
-        //display edit form
-        Route::get('edit', array('as' => 'edit-profile', function() {
-        return showview('forms/profile');
-    }));
+            //display edit form
+            Route::get('edit', array('as' => 'edit-profile', function() {
+            return showview('forms/profile');
+        }));
 
         Route::get('dashboard', array('as' => 'dashboard', function() {
+            return showview('admin/dashboard');
+        }));
+        
+        Route::get('edit/profilePicture', array('as' => 'editProfilePicture', function() {
+            return showview('forms/profilePicture');
+        }));
 
-        return showview('admin/dashboard');
-    }));
-
-        Route::get('addProvider', array('as' => 'addProvider',
-            'uses' => 'SLogin@addProvider'));
+        Route::get('addProvider', array('as' => 'addProvider', 
+                'uses' => 'SLogin@addProvider'));
 
         Route::get('testAPI', array('as' => 'tests', function() {
-        //Get current Route
-        $route_name = Route::currentRouteName();
-        //Get configuration File
-        $_config = include app_path() . '/config/hybridauth.php';
-        $_config['base_url'] = route($route_name) . '?action=auth';
-        //GetObject
-        $hybridAuth = new Hybrid_Auth($_config);
+            //Get current Route
+            $route_name = Route::currentRouteName();
+            //Get configuration File
+            $_config = include app_path() . '/config/hybridauth.php';
+            $_config['base_url'] = route($route_name) . '?action=auth';
+            //GetObject
+            $hybridAuth = new Hybrid_Auth($_config);
 
-        print_r($hybridAuth->getProviders());
-        echo '<br><br><br>';
-        print_r($hybridAuth->getSessionData());
-        echo '<br><br><br>';
-        echo "<pre>";
-        print_r($hybridAuth->getAdapter(Input::get('p'))->getUserProfile());
-        echo "</pre>";
-        echo "<pre>";
-        print_r($hybridAuth->getConnectedProviders());
-        echo "</pre>";
-
-
+            print_r($hybridAuth->getProviders());
+            echo '<br><br><br>';
+            print_r($hybridAuth->getSessionData());
+            echo '<br><br><br>';
+            echo "<pre>";
+            print_r($hybridAuth->getAdapter(Input::get('p'))->getUserProfile());
+            echo "</pre>";
+            echo "<pre>";
+            print_r($hybridAuth->getConnectedProviders());
+            echo "</pre>";
 
 
-        print_r($hybridAuth->getAdapter(Input::get('p'))->isUserConnected());
-        echo "</pre>";
 
-        echo "<pre>";
-        $facebook = $hybridAuth->getAdapter('facebook')->api();
-        $fb = $facebook->api('me/inbox');
-        echo $fb['message'];
-        echo "</pre>";
-    }));
+
+            print_r($hybridAuth->getAdapter(Input::get('p'))->isUserConnected());
+            echo "</pre>";
+
+            echo "<pre>";
+            $facebook = $hybridAuth->getAdapter('facebook')->api();
+            $fb = $facebook->api('me/inbox');
+            echo $fb['message'];
+            echo "</pre>";
+        }));
 
         //log out action
         Route::get('logout', array('as' => 'logout-user',
             'uses' => 'SLogin@logout'));
 
+        
         //Form Actions
         Route::group(array('before' => 'crsf'), function() {
 
@@ -98,6 +95,9 @@ Route::group(array('prefix' => 'users'), function() {
 
             Route::post('login', array('as' => 'login-user-action',
                 'uses' => 'SLogin@registerLocalProfile'));
+            Route::post('edit/profilepicture/upload', array('uses' => 'ProfilePicture@upload'));
+            Route::post('edit/profilepicture/select', array('uses' => 'ProfilePicture@select'));
+            Route::post('edit/profilepicture/delete', array('uses' => 'ProfilePicture@delete'));
         });
     });
 

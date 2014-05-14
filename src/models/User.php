@@ -11,7 +11,7 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     protected $maxUploads = 5;
     protected $picture_info = array(
         "size" => 0,
-        "paths"=>array()
+        "paths" => array()
     );
 
     /**
@@ -47,14 +47,14 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
     }
 
     public static function create(array $attributes) {
-        $newUser =  parent::create($attributes);
+        $newUser = parent::create($attributes);
         $folderPath = $newUser->picture_Path . $newUser->id;
         if (!file_exists($folderPath)) {
             //create directory for profilepictures
             mkdir($folderPath, 0777, true);
             //add setings file
-             file_put_contents($folderPath . "/setting.json", 
-                     json_encode($newUser->picture_info));
+            file_put_contents($folderPath . "/setting.json", 
+                    json_encode($newUser->picture_info));
         }
         return $newUser;
     }
@@ -78,6 +78,31 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 
     public function hybridSessions() {
         return $this->hasOne('HybridSessions', 'user_id');
+    }
+    /**
+     * Retusn the setings array
+     * 
+     * @return array
+     */
+    public function getFileSettings(){
+        $folderPath = $this->picture_Path . $this->id;
+        return json_decode(
+                file_get_contents($folderPath . "/setting.json"), true);
+    }
+    /**
+     * return the app path to the user's profile pictures
+     *  Ex. "uploads/profilePictures/14"
+     * @return string
+     */
+    public function getFolderPath(){
+        return $this->picture_Path . $this->id;
+    }
+    
+    public function getPictureURL($key){
+        $settings = $this->getFileSettings();
+        return (isset($settings["paths"][$key]))?
+        URL::asset($this->getFolderPath().'/'.$key):
+        NULL;
     }
 
     public function getRememberToken() {

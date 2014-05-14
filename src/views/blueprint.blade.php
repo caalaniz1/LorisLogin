@@ -37,6 +37,7 @@
                         <li><a href="{{URL::route("register-user")}}">Register</a></li>
                         @elseif(Auth::check())
                         <li><a href="{{URL::route("dashboard")}}">Dashboard</a></li>
+                        <li><a href="{{URL::route("editProfilePicture")}}">Edit Profile Picture</a></li>
                         <li><a href="{{URL::route("edit-profile")}}">Edit Profile</a></li>
                         <li><a href="{{URL::route("logout-user")}}">Logout</a></li>
                         <form action="{{URL::route("addProvider")}}" method="GET"class="navbar-form navbar-left right" role="network">

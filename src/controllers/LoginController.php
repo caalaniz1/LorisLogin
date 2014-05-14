@@ -62,9 +62,8 @@ class SLogin extends BaseController {
      * @param string $reRoute
      * @return type
      */
-    public function login($user = null, $reRoute = 'dashboard') {
+    private function login($user = null, $reRoute = 'dashboard') {
         $input = Input::all();
-
         if ($user == null) {
             $validator = Validator::make(
                             $input, array(
@@ -186,7 +185,6 @@ class SLogin extends BaseController {
                     'birthYear' => 'required|integer|between:0,3000',
                     'description' => 'between:15,3000',
                     'gender' => 'alpha|required',
-                    'photoUrl' => 'required|image',
                     'email' => 'required|email',
                     'address' => 'required|max:30|alpha_spaces',
                         ), $GLOBALS['$validator_messages'] //rules.php
@@ -200,7 +198,6 @@ class SLogin extends BaseController {
             'last_name' => $input['lastName'],
             'description' => $input['description'],
             'gender' => $input['gender'],
-            'photo_URL' => $input['photoUrl'],
             'date_of_birth' =>
             $input['birthYear'] . '-' . $input['birthMonth'] . '-' . $input['birthDay'],
             'email' => $input['email'],
@@ -270,55 +267,45 @@ class SLogin extends BaseController {
     }
 
     public function addProvider() {
-        $adapter = $this->socialLogin();
-
-        if ($adapter) {
+        try {
+            //Get Adapter
+            $adapter = $this->socialLogin();
             if (!SocialProfile::find($adapter->getUserProfile()->identifier)) {
                 $this->registerSocialProfile($adapter, Auth::user());
-                //Sv session in DB
+                //Save session in DB
                 $session = Auth::user()->hybridSessions()->getResults();
                 $this->updateSession($session);
             } else {
                 return Redirect::route('dashboard')
                                 ->withErrors(array("error" => "That Profile is already registered"));
             }
-        } else {
-            var_dump($adapter);
-            die();
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
         return Redirect::route('dashboard');
     }
 
     /**
+     * Attempts to log in a user based on their social network credentials
+     * if a user is not found, a new one is created
+     * 
      * 
      * @return type
      */
     public function loginUser() {
         //Get Adapter
         $adapter = $this->socialLogin();
-        //var_dump($adapter);die();
         //Get User Profile from Adapter
-        //LoginHelper::printFormatVAr($adapter->adapter);
-        //echo $adapter->getUserProfile()->identifier;
         $profile = $adapter->getUserProfile();
-
-        //LoginHelper::printFormatVAr($adapter);
         //Look for profile in DB
         $userProfile = SocialProfile::find($profile->identifier);
-        //die();
         //If Found
         if ($userProfile) {
             //Get User
             $user = $userProfile->user()->getResults();
-
             //Log in User
             return $this->login($user);
-            //echo "logfed in: " . Auth::check() . '<br>';
-            //LoginHelper::printFormatVAr(LoginHelper::getHybridAuthObject()
-            //               ->getAdapter('twitter'));
         } else {
-            //echo "Profile Not fount";
-            //echo "Registering profile..";
             $newUser = $this->registerUser($adapter);
             $this->registerSocialProfile($adapter, $newUser);
             return $this->login($newUser);
