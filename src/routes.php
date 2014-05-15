@@ -20,7 +20,7 @@ function showview($view_name) {
 Route::group(array('prefix' => 'users'), function() {
 
     Route::get('socialConnection', array('as' => 'sociallogin',
-        'uses' => 'SLogin@loginUser'));
+        'uses' => 'LoginController@loginWithSocialNetwork'));
 
     Route::get('/', array('as' => 'start', function() {
         $conected = (Auth::check()) ? 'Online' : 'Offline';
@@ -47,7 +47,7 @@ Route::group(array('prefix' => 'users'), function() {
         }));
 
         Route::get('addProvider', array('as' => 'addProvider', 
-                'uses' => 'SLogin@addProvider'));
+                'uses' => 'LoginController@addProvider'));
 
         Route::get('testAPI', array('as' => 'tests', function() {
             //Get current Route
@@ -77,27 +77,25 @@ Route::group(array('prefix' => 'users'), function() {
 
             echo "<pre>";
             $facebook = $hybridAuth->getAdapter('facebook')->api();
-            $fb = $facebook->api('me/inbox');
-            echo $fb['message'];
             echo "</pre>";
         }));
 
         //log out action
         Route::get('logout', array('as' => 'logout-user',
-            'uses' => 'SLogin@logout'));
+            'uses' => 'LoginController@logout'));
 
         
         //Form Actions
         Route::group(array('before' => 'crsf'), function() {
 
             Route::post('edit', array('as' => 'edit-profile-action',
-                'uses' => 'SLogin@registerLocalProfile'));
+                'uses' => 'localProfileController@update'));
 
             Route::post('login', array('as' => 'login-user-action',
-                'uses' => 'SLogin@registerLocalProfile'));
-            Route::post('edit/profilepicture/upload', array('uses' => 'ProfilePicture@upload'));
-            Route::post('edit/profilepicture/select', array('uses' => 'ProfilePicture@select'));
-            Route::post('edit/profilepicture/delete', array('uses' => 'ProfilePicture@delete'));
+                'uses' => 'LoginController@registerLocalProfile'));
+            Route::post('edit/profilepicture/upload', array('uses' => 'ProfilePictureController@upload'));
+            Route::post('edit/profilepicture/select', array('uses' => 'ProfilePictureController@select'));
+            Route::post('edit/profilepicture/delete', array('uses' => 'ProfilePictureController@delete'));
         });
     });
 
@@ -115,13 +113,18 @@ Route::group(array('prefix' => 'users'), function() {
     }));
 
         Route::get('loginWithSocial', array(
-            'as' => 'login-user-social', 'uses' => 'SLogin@loginUser'));
+            'as' => 'login-user-social', 'uses' => 'LoginController@loginUser'));
 
         Route::group(array('before' => 'crsf'), function() {
             Route::post('login', array('as' => 'login-user-action',
-                'uses' => 'SLogin@login'));
-            Route::post('register', array('as' => 'registerlocal',
-                'uses' => 'SLogin@registerUserLocal'));
+                'uses' => 'LoginController@loginWithLocalCredentials'));
+            
+            
+            Route::get('register/social', array('as' => 'registerWithSocialNetwork',
+                'uses' => 'LoginController@registerWithSocialNetwork'));
+            
+            Route::post('register/local', array('as' => 'registerWithLocalCredentials',
+                'uses' => 'LoginController@registerWithLocalCredentials'));
         });
     });
 });

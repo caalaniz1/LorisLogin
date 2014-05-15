@@ -21,7 +21,6 @@ class CreateUserLocalProfileTable extends Migration {
             $table->string('gender','20')->nullable();
             $table->string('photo_url','256')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->string('email','100')->nullable();
             $table->string('address','150')->nullable();
             $table->string('country','20')->nullable();
             $table->string('city','20')->nullable();

@@ -3,7 +3,7 @@ $profile = Auth::user()->localProfile()->getResults();
 ?>
 <h2>Delete</h2>
 Click on the picture that you want to set.
-{{Form::open(array('action'=>'ProfilePicture@delete', 'files' => true))}}
+{{Form::open(array('action'=>'ProfilePictureController@delete', 'files' => true))}}
 <div>
     @foreach(Auth::user()->getFileSettings()['paths'] as $key => $value)
     <?php $url = Auth::user()->getPictureUrl($key); ?>

@@ -7,7 +7,7 @@
  */
 //Route to post to
 $form_route = "valid";
-$form_action = "SLogin@registerLocalProfile";
+$form_action = "localProfileController@update";
 $social_action_route = "test";
 $user = Auth::user();
 $localProfile = $user->localProfile()->getResults();

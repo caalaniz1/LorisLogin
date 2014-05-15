@@ -1,6 +1,6 @@
 <?php
 
-class ProfilePicture extends BaseController {
+class ProfilePictureController extends BaseController {
 
     /**
      * Upload a picture to the correct folder.

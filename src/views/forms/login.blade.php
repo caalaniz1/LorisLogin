@@ -7,8 +7,8 @@
  */
 //Route to post to
 $form_route = "test";
-$form_action = "SLogin@login";
-$social_action_action = "SLogin@loginUser";
+$form_action = "LoginController@loginWithLocalCredentials";
+$social_action_action = "LoginController@loginWithSocialNetwork";
 ?>
 @if($errors->has('login'))
 <div class="alert alert-warning">

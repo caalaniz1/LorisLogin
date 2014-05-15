@@ -12,8 +12,9 @@ class CreateUserSocialSessions extends Migration {
      */
     public function up() {
         Schema::create('user_sessions', function($table) {
-            $table->integer('user_id');
-            $table->text('hybridauth_sessions');
+            $table->integer('user_id')->unique();
+            $table->integer('id');
+            $table->text('hybridauth_sessions')->nullable();
             $table->timestamps();
         });
     }

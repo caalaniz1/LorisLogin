@@ -12,6 +12,6 @@ $profile = Auth::user()->localProfile()->getResults();
 You don't have a profile picture yet
 @endif
 
-@include('LorisLogin::forms/profilePictureUpload')
-@include('LorisLogin::forms/profilePictureSelect')
-@include('LorisLogin::forms/profilePictureDelete')
+@include('LoriLoginController::forms/profilePictureUpload')
+@include('LoriLoginController::forms/profilePictureSelect')
+@include('LoriLoginController::forms/profilePictureDelete')

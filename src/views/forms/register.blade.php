@@ -6,13 +6,13 @@
  * @author Carlos A. Alaniz <carlos@redpandadev.com>
  */
 //Route to post to
-$form_route = "registerlocal";
-$social_action_route = "SLogin@loginUser";
+$form_route = "LoginController@registerWithLocalCredentials";
+$social_action_route = "LoginController@registerWithSocialNetwork";
 ?>
 
 
 {{Form::open(array
-    ('route' => $form_route, 'method' => 'POST', 'role'=>'form'))}}
+    ('action' => $form_route, 'method' => 'POST', 'role'=>'form'))}}
 
 <!--Form Name-->
 <div class="form-group"> <h1>Register</h2> </div>
